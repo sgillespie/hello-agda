@@ -47,13 +47,13 @@
               # Build the application exe
               buildPhase = ''
                 cd app
-                agda --compile "HelloWorld.agda"
+                agda --compile "hello-world.agda"
               '';
 
               # Copy it to the output dir
               installPhase = ''
                 mkdir -p $out/bin
-                cp HelloWorld $out/bin/hello-world
+                cp hello-world $out/bin/
               '';
             };
 

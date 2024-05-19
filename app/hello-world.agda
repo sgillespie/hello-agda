@@ -1,4 +1,4 @@
-module HelloWorld where
+module hello-world where
 
 open import Hello using (Greeting; hello)
 
