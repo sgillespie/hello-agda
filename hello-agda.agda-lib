@@ -1,0 +1,4 @@
+name: hello-agda
+include: src
+depend:
+  standard-library
