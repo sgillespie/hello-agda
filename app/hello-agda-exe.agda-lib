@@ -1,0 +1,6 @@
+name: hello-agda-exe
+include:
+  .
+  ../src
+depend:
+  standard-library
