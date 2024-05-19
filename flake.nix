@@ -12,26 +12,54 @@
         };
         agda = pkgs.agda.withPackages (p: [ p.standard-library ]);
       in {
-        packages.default = with pkgs; agdaPackages.mkDerivation {
-          version = "0.0.1";
-          pname = "hello-agda";
-          src = ./.;
+        packages =
+          let
+            mkAgdaPackage = attrs:
+              with pkgs; agdaPackages.mkDerivation ({
+                version = "0.0.1";
+                pname = "hello-agda";
+                buildInputs = [ pkgs.agdaPackages.standard-library ];
+                src = ./.;
 
-          buildInputs = [ agdaPackages.standard-library ];
+                meta = {
+                  description = "Nix recipe for a minimal agda library";
+                  homepage = "https://github.com/sgillespie/hello-agda";
+                  platforms = pkgs.lib.platforms.unix;
+                  license = pkgs.lib.licenses.mit;
+                  maintainers = [{
+                    name = "Sean Gillespie";
+                    github = "sgillespie";
+                    githubId = 139144;
+                  }];
+                };
+              } // attrs);
+          in rec {
+            lib = mkAgdaPackage {
+              # We don't want to output the executable files
+              postInstall = ''
+                rm -r $out/app
+              '';
+            };
 
-          meta = {
-            description = "Nix recipe for a minimal agda library";
-            homepage = "https://github.com/sgillespie/hello-agda";
-            platforms = lib.platforms.unix;
-            license = lib.licenses.mit;
-            maintainers = [{
-              name = "Sean Gillespie";
-              github = "sgillespie";
-              githubId = 139144;
-            }];
+            app = mkAgdaPackage {
+              pname = "hello-agda-exe";
+
+              # Build the application exe
+              buildPhase = ''
+                cd app
+                agda --compile "HelloWorld.agda"
+              '';
+
+              # Copy it to the output dir
+              installPhase = ''
+                mkdir -p $out/bin
+                cp HelloWorld $out/bin/hello-world
+              '';
+            };
+
+            # We'll usually want to build the exe
+            default = app;
           };
-
-        };
 
         devShells.default = pkgs.mkShell {
           packages = [
